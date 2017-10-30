@@ -15,7 +15,7 @@ namespace MataGato
         static List<SorterWord> savedDictionary = new List<SorterWord>();
         static List<SorterWord> baseDictionary = new List<SorterWord>();
         static int killedKitten = 0;
-        static int jump = 1000000000;  // tamanho do salto na amostra 
+        static int jump = 2000;  // tamanho do salto na amostra 
 
 
 
