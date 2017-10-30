@@ -15,7 +15,7 @@ namespace MataGato
         static List<SorterWord> savedDictionary = new List<SorterWord>();
         static List<SorterWord> baseDictionary = new List<SorterWord>();
         static int killedKitten = 0;
-        static int jump = 4;
+        static int jump = 1000000000;  // tamanho do salto na amostra 
 
 
 
@@ -27,6 +27,7 @@ namespace MataGato
             client.BaseAddress = new Uri("http://testes.ti.lemaf.ufla.br/api/Dicionario/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
             while (true)
             {
                 Console.WriteLine("Por favor, digite a palavra e tecle ENTER para iniciar a pesquisa" + "\r\n" + "Ou somente ENTER para sair.");
@@ -38,7 +39,10 @@ namespace MataGato
                     callTask.Wait();
                     var astr = callTask.Result;
                     killedKitten = KilledKittens.ReturnKilledkitten();
-                    Console.WriteLine("A palavra {0} está na posição {1}. Para encontrarmos a palavra, {2} gatinhos foram mortos." + "\r\n\r\n", word, astr.Position, killedKitten);
+                    if (astr != null)
+                    {
+                        Console.WriteLine("A palavra {0} está na posição {1}. Para encontrarmos a palavra, {2} gatinhos foram mortos." + "\r\n\r\n", word, astr.Position, killedKitten);
+                    }
                     KilledKittens.ResetCounter();
                 }
                 else

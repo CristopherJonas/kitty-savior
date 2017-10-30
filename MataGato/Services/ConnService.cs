@@ -18,6 +18,10 @@ namespace MataGato.Services
             {
                 word = await response.Content.ReadAsStringAsync();
             }
+            else
+            {
+                throw new Exception("Palavra não encontrada");
+            }
             return new SorterWord(word.Substring(1, word.Length - 2), Convert.ToInt32(position));
         }
     }

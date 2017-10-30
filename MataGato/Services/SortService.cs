@@ -50,28 +50,38 @@ namespace MataGato.Services
 
                 if (savedPositionsOnDictionary != maxNumOfPositionsInInterval)
                 {
-                    do
+                    try
                     {
-                        next = rnd.Next(minorPosition, majorPosition);
-                    } while (savedDictionary.Any(obj => obj.Position == next));
+                        do
+                        {
+                            next = rnd.Next(minorPosition, majorPosition);
+                        } while (savedDictionary.Any(obj => obj.Position == next));
 
-                    var returnedWord = await ConnService.GetWordAsync(next.ToString(), client);
-                    KilledKittens.KillCat();
-                    savedDictionary = SortedWordDictionaryServices.SaveWordOnMyDictionary(savedDictionary, returnedWord);
+                        var returnedWord = await ConnService.GetWordAsync(next.ToString(), client);
+                        KilledKittens.KillCat();
+                        savedDictionary = SortedWordDictionaryServices.SaveWordOnMyDictionary(savedDictionary, returnedWord);
 
-                    if (String.Compare(word, returnedWord.Word) == 0)
-                    {
-                        return returnedWord;
+                        if (String.Compare(word, returnedWord.Word) == 0)
+                        {
+                            return returnedWord;
+                        }
+                        else
+                        {
+                            return await GetWord(client, savedDictionary, jump, minorPosition, majorPosition, word);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        return await GetWord(client, savedDictionary, jump, minorPosition, majorPosition, word);
+                        Console.WriteLine(ex.Message);
+                        return null;
                     }
                 }
                 else
                 {
                     return await GetWord(client, savedDictionary, jump, majorPosition, majorPosition + jump, word);
                 }
+
+
             }
         }
 
