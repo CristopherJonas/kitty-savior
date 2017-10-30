@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MataGato.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,45 +11,69 @@ namespace MataGato.Services
 {
     public class SortService
     {
-        //static HttpClient client = new HttpClient();
-
-        //static string SortNewWord(int lower, int higher)
-        //{
-        //    return "dfdsf";
-        //}
-
-        static HttpClient client = new HttpClient();
-
-        public static async Task<string> GetWordAsync(string position)
+        public static async Task<SorterWord> SearchWord(HttpClient client, List<SorterWord> savedDictionary, List<SorterWord> baseDictionary, int jump, string word)
         {
-            string word = null;
-            HttpResponseMessage response = await client.GetAsync(position);
-            if (response.IsSuccessStatusCode)
+            var isWordOnMyDictionary = SortedWordDictionaryServices.SearchWordOnMyDictionary(savedDictionary, word);
+            if (isWordOnMyDictionary != null)
             {
-                word = await response.Content.ReadAsStringAsync();
+                return isWordOnMyDictionary;
             }
-            return word;
+            else
+            {
+                var currentChar = word[0].ToString();
+
+                int minValue = BaseDictionaryService.GetMinorIndex(baseDictionary, currentChar);
+                int maxValue = BaseDictionaryService.GetMajorIndex(baseDictionary, currentChar);
+
+                if (minValue >= maxValue)
+                {
+                    maxValue = maxValue + jump;
+                }
+
+                return await GetWord(client, savedDictionary, jump, minValue, maxValue, word);
+            }
         }
 
-        public static async Task RunAsync(string val)
+        public static async Task<SorterWord> GetWord(HttpClient client, List<SorterWord> savedDictionary, int jump, int minorPosition, int majorPosition, string word)
         {
-            client.BaseAddress = new Uri("http://testes.ti.lemaf.ufla.br/api/Dicionario/");
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            try
+            if (minorPosition > majorPosition)
             {
-                // Get the product
-                string name = await GetWordAsync(val);
-                Console.WriteLine(name);
-
+                return new SorterWord("", -1);
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e.Message);
-            }
+                Random rnd = new Random();
+                int next = 0;
 
-            Console.ReadLine();
+                int maxNumOfPositionsInInterval = majorPosition - minorPosition;
+                var savedPositionsOnDictionary = savedDictionary.Count(x => x.Position >= minorPosition && x.Position <= majorPosition);
+
+                if (savedPositionsOnDictionary != maxNumOfPositionsInInterval)
+                {
+                    do
+                    {
+                        next = rnd.Next(minorPosition, majorPosition);
+                    } while (savedDictionary.Any(obj => obj.Position == next));
+
+                    var returnedWord = await ConnService.GetWordAsync(next.ToString(), client);
+                    KilledKittens.KillCat();
+                    savedDictionary = SortedWordDictionaryServices.SaveWordOnMyDictionary(savedDictionary, returnedWord);
+
+                    if (String.Compare(word, returnedWord.Word) == 0)
+                    {
+                        return returnedWord;
+                    }
+                    else
+                    {
+                        return await GetWord(client, savedDictionary, jump, minorPosition, majorPosition, word);
+                    }
+                }
+                else
+                {
+                    return await GetWord(client, savedDictionary, jump, majorPosition, majorPosition + jump, word);
+                }
+            }
         }
+
     }
 }

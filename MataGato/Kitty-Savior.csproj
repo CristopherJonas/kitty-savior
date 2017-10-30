@@ -45,7 +45,10 @@
     <Compile Include="Models\SorterWord.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\BaseDictionaryService.cs" />
     <Compile Include="Services\ConnService.cs" />
+    <Compile Include="Services\KilledKittens.cs" />
+    <Compile Include="Services\SortedWordDictionaryServices.cs" />
     <Compile Include="Services\SortService.cs" />
   </ItemGroup>
   <ItemGroup>
